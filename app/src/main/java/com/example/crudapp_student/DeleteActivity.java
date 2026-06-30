@@ -19,9 +19,11 @@ public class DeleteActivity extends AppCompatActivity {
             String idStr = etId.getText().toString();
 
             if (!idStr.isEmpty()) {
-                DatabaseHelper.deleteStudent(Integer.parseInt(idStr), success -> {
+                DatabaseHelper.deleteStudent(Integer.parseInt(idStr), result -> {
                     runOnUiThread(() -> {
-                        if (success) {
+                        if (result == null) {
+                            Toast.makeText(DeleteActivity.this, "DB接続失敗", Toast.LENGTH_SHORT).show();
+                        } else if (result) {
                             Toast.makeText(DeleteActivity.this, "削除成功", Toast.LENGTH_SHORT).show();
                             finish();
                         } else {

@@ -3,7 +3,7 @@ package com.example.crudapp_student;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -11,6 +11,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // 起動時にDB接続チェック
+        DatabaseHelper.getAllStudents(result -> {
+            if (result == null) {
+                runOnUiThread(() -> {
+                    Toast.makeText(MainActivity.this, "DBに接続できません。設定を確認してください。", Toast.LENGTH_LONG).show();
+                });
+            }
+        });
 
         findViewById(R.id.btnRegister).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -30,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // バグ: 更新ボタンなのに削除画面へ飛ぶ
-                startActivity(new Intent(MainActivity.this, UpdateActivity.class));
+                startActivity(new Intent(MainActivity.this, DeleteActivity.class));
             }
         });
 

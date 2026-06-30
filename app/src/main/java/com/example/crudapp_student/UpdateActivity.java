@@ -24,9 +24,11 @@ public class UpdateActivity extends AppCompatActivity {
 
             if (!idStr.isEmpty() && !name.isEmpty() && !gradeStr.isEmpty()) {
                 Student student = new Student(Integer.parseInt(idStr), name, Integer.parseInt(gradeStr));
-                DatabaseHelper.updateStudent(student, success -> {
+                DatabaseHelper.updateStudent(student, result -> {
                     runOnUiThread(() -> {
-                        if (success) {
+                        if (result == null) {
+                            Toast.makeText(UpdateActivity.this, "DB接続失敗", Toast.LENGTH_SHORT).show();
+                        } else if (result) {
                             Toast.makeText(UpdateActivity.this, "更新成功", Toast.LENGTH_SHORT).show();
                             finish();
                         } else {

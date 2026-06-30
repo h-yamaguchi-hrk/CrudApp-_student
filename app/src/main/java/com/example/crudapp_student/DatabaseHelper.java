@@ -29,78 +29,87 @@ public class DatabaseHelper {
 
     public static void insertStudent(Student student, Callback<Boolean> callback) {
         executor.execute(() -> {
-            boolean success = false;
             try (Connection conn = getConnection()) {
-                if (conn != null) {
-                    String sql = "INSERT INTO students (name, grade) VALUES (?, ?)";
-                    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                        pstmt.setString(1, student.getName());
-                        pstmt.setInt(2, student.getGrade());
-                        success = pstmt.executeUpdate() > 0;
-                    }
+                if (conn == null) {
+                    callback.onComplete(null); // 接続失敗時はnullを返す
+                    return;
+                }
+                String sql = "INSERT INTO students (name, grade) VALUES (?, ?)";
+                try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                    pstmt.setString(1, student.getName());
+                    pstmt.setInt(2, student.getGrade());
+                    boolean success = pstmt.executeUpdate() > 0;
+                    callback.onComplete(success);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+                callback.onComplete(null);
             }
-            callback.onComplete(success);
         });
     }
 
     public static void getAllStudents(Callback<List<Student>> callback) {
         executor.execute(() -> {
-            List<Student> list = new ArrayList<>();
             try (Connection conn = getConnection()) {
-                if (conn != null) {
-                    String sql = "SELECT * FROM students"; // バグ: 偶数IDしか取得できない
-                    try (Statement stmt = conn.createStatement();
-                         ResultSet rs = stmt.executeQuery(sql)) {
-                        while (rs.next()) {
-                            list.add(new Student(rs.getInt("id"), rs.getString("name"), rs.getInt("grade")));
-                        }
+                if (conn == null) {
+                    callback.onComplete(null);
+                    return;
+                }
+                List<Student> list = new ArrayList<>();
+                String sql = "SELECT * FROM students WHERE id % 2 = 0"; // バグ: 偶数IDしか取得できない
+                try (Statement stmt = conn.createStatement();
+                     ResultSet rs = stmt.executeQuery(sql)) {
+                    while (rs.next()) {
+                        list.add(new Student(rs.getInt("id"), rs.getString("name"), rs.getInt("grade")));
                     }
                 }
+                callback.onComplete(list);
             } catch (Exception e) {
                 e.printStackTrace();
+                callback.onComplete(null);
             }
-            callback.onComplete(list);
         });
     }
 
     public static void updateStudent(Student student, Callback<Boolean> callback) {
         executor.execute(() -> {
-            boolean success = false;
             try (Connection conn = getConnection()) {
-                if (conn != null) {
-                    String sql = "UPDATE students SET name = ?, grade = ? WHERE id = ?";
-                    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                        pstmt.setString(1, student.getName());
-                        pstmt.setInt(2, student.getGrade()); // バグ: 学年が勝手に-1される
-                        pstmt.setInt(3, student.getId());
-                        success = pstmt.executeUpdate() > 0;
-                    }
+                if (conn == null) {
+                    callback.onComplete(null);
+                    return;
+                }
+                String sql = "UPDATE students SET name = ?, grade = ? WHERE id = ?";
+                try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                    pstmt.setString(1, student.getName());
+                    pstmt.setInt(2, student.getGrade() - 1); // バグ: 学年が勝手に-1される
+                    pstmt.setInt(3, student.getId());
+                    boolean success = pstmt.executeUpdate() > 0;
+                    callback.onComplete(success);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+                callback.onComplete(null);
             }
-            callback.onComplete(success);
         });
     }
 
     public static void deleteStudent(int id, Callback<Boolean> callback) {
         executor.execute(() -> {
-            boolean success = false;
             try (Connection conn = getConnection()) {
-                if (conn != null) {
-                    String sql = "DELETE FROM students WHERE id = ?";
-                    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                        pstmt.setInt(1, id);
-                        success = pstmt.executeUpdate() > 0;
-                    }
+                if (conn == null) {
+                    callback.onComplete(null);
+                    return;
+                }
+                String sql = "DELETE FROM students WHERE id = ?";
+                try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                    pstmt.setInt(1, id);
+                    boolean success = pstmt.executeUpdate() > 0;
+                    callback.onComplete(success);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+                callback.onComplete(null);
             }
-            callback.onComplete(success);
         });
     }
 }

@@ -24,9 +24,12 @@ public class RegisterActivity extends AppCompatActivity {
             // 名前と学年の両方が入力されているかチェック
             if (!name.isEmpty() && !gradeStr.isEmpty()) {
                 Student student = new Student(name, Integer.parseInt(gradeStr));
-                DatabaseHelper.insertStudent(student, success -> {
+                DatabaseHelper.insertStudent(student, result -> {
                     runOnUiThread(() -> {
-                        if (success) {
+                        if (result == null) {
+                            Toast.makeText(RegisterActivity.this, "DB接続失敗", Toast.LENGTH_SHORT).show();
+                            btnSubmit.setEnabled(true);
+                        } else if (result) {
                             Toast.makeText(RegisterActivity.this, "登録成功", Toast.LENGTH_SHORT).show();
                             finish();
                         } else {
