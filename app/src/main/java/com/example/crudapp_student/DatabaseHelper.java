@@ -49,10 +49,14 @@ public class DatabaseHelper {
     }
 
     public static void getAllStudents(Callback<List<Student>> callback) {
-        getStudentsFiltered("", "id", callback);
+        getStudentsFiltered("", 0, "id", callback);
     }
 
     public static void getStudentsFiltered(String query, String sortBy, Callback<List<Student>> callback) {
+        getStudentsFiltered(query, 0, sortBy, callback);
+    }
+
+    public static void getStudentsFiltered(String query, int gradeFilter, String sortBy, Callback<List<Student>> callback) {
         executor.execute(() -> {
             try (Connection conn = getConnection()) {
                 if (conn == null) {
@@ -60,18 +64,24 @@ public class DatabaseHelper {
                     return;
                 }
 
-                // 安全なソート項目の判定（ホワイトリスト方式）
-                String orderByClause = "id"; // デフォルト
+                String orderByClause = "id";
                 if ("name".equals(sortBy)) {
                     orderByClause = "name";
                 }
 
                 List<Student> list = new ArrayList<>();
-                // 修正済み：BINARYを削除し、大文字小文字を許容。ソートも安全に指定。
-                String sql = "SELECT * FROM students WHERE name LIKE ? ORDER BY " + orderByClause;
-                
-                try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                // バグ仕込み3：学年フィルターの条件が >= になっている（「2年生」を選んでも3年生まで出る）
+                StringBuilder sql = new StringBuilder("SELECT * FROM students WHERE name LIKE ? ");
+                if (gradeFilter > 0) {
+                    sql.append("AND grade >= ? ");
+                }
+                sql.append("ORDER BY ").append(orderByClause);
+
+                try (PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
                     pstmt.setString(1, "%" + query + "%");
+                    if (gradeFilter > 0) {
+                        pstmt.setInt(2, gradeFilter);
+                    }
                     try (ResultSet rs = pstmt.executeQuery()) {
                         while (rs.next()) {
                             list.add(new Student(rs.getInt("id"), rs.getString("name"), rs.getInt("grade")));
@@ -96,7 +106,6 @@ public class DatabaseHelper {
                 String sql = "UPDATE students SET name = ?, grade = ? WHERE id = ?";
                 try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                     pstmt.setString(1, student.getName());
-                    // 修正済み：正しい学年を保存
                     pstmt.setInt(2, student.getGrade());
                     pstmt.setInt(3, student.getId());
                     boolean success = pstmt.executeUpdate() > 0;
@@ -120,6 +129,25 @@ public class DatabaseHelper {
                 try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                     pstmt.setInt(1, id);
                     boolean success = pstmt.executeUpdate() > 0;
+                    callback.onComplete(success);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                callback.onComplete(null);
+            }
+        });
+    }
+
+    public static void deleteAllStudents(Callback<Boolean> callback) {
+        executor.execute(() -> {
+            try (Connection conn = getConnection()) {
+                if (conn == null) {
+                    callback.onComplete(null);
+                    return;
+                }
+                String sql = "DELETE FROM students";
+                try (Statement stmt = conn.createStatement()) {
+                    boolean success = stmt.executeUpdate(sql) >= 0;
                     callback.onComplete(success);
                 }
             } catch (Exception e) {

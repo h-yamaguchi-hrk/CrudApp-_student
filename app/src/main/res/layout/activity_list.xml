@@ -18,15 +18,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="8dp">
+        android:padding="8dp"
+        android:gravity="center_vertical">
 
         <EditText
             android:id="@+id/etSearch"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="名前で検索"
+            android:hint="名前検索"
             android:inputType="text" />
+
+        <Spinner
+            android:id="@+id/spinnerGrade"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" /> <!-- Java側で設定 -->
 
         <Button
             android:id="@+id/btnSearch"
@@ -69,11 +75,26 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <Button
-            android:id="@+id/btnBack"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="戻る" />
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnDeleteAll"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="全削除"
+                android:backgroundTint="#F44336" />
+
+            <Button
+                android:id="@+id/btnBack"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="戻る" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>
