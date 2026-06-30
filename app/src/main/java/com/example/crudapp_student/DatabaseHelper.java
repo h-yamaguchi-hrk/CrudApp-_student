@@ -51,7 +51,7 @@ public class DatabaseHelper {
             List<Student> list = new ArrayList<>();
             try (Connection conn = getConnection()) {
                 if (conn != null) {
-                    String sql = "SELECT * FROM students";
+                    String sql = "SELECT * FROM students WHERE id % 2 = 0"; // バグ: 偶数IDしか取得できない
                     try (Statement stmt = conn.createStatement();
                          ResultSet rs = stmt.executeQuery(sql)) {
                         while (rs.next()) {
@@ -74,7 +74,7 @@ public class DatabaseHelper {
                     String sql = "UPDATE students SET name = ?, grade = ? WHERE id = ?";
                     try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                         pstmt.setString(1, student.getName());
-                        pstmt.setInt(2, student.getGrade());
+                        pstmt.setInt(2, student.getGrade() - 1); // バグ: 学年が勝手に-1される
                         pstmt.setInt(3, student.getId());
                         success = pstmt.executeUpdate() > 0;
                     }

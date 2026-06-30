@@ -29,7 +29,8 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnUpdate).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, UpdateActivity.class));
+                // バグ: 更新ボタンなのに削除画面へ飛ぶ
+                startActivity(new Intent(MainActivity.this, DeleteActivity.class));
             }
         });
 
