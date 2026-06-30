@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // バグ: 更新ボタンなのに削除画面へ飛ぶ
-                startActivity(new Intent(MainActivity.this, DeleteActivity.class));
+                startActivity(new Intent(MainActivity.this, UpdateActivity.class));
             }
         });
 
