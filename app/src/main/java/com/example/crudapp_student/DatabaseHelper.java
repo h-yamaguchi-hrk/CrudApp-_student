@@ -59,10 +59,16 @@ public class DatabaseHelper {
                     callback.onComplete(null);
                     return;
                 }
+
+                // 安全なソート項目の判定（ホワイトリスト方式）
+                String orderByClause = "id"; // デフォルト
+                if ("name".equals(sortBy)) {
+                    orderByClause = "name";
+                }
+
                 List<Student> list = new ArrayList<>();
-                // バグ仕込み1：大文字小文字を区別してしまう（BINARYを使用）
-                // バグ仕込み2：並び替えのSQLが少しおかしい（ID順なのに文字列としてソートされる可能性）
-                String sql = "SELECT * FROM students WHERE name LIKE ? ORDER BY " + sortBy;
+                // 修正済み：BINARYを削除し、大文字小文字を許容。ソートも安全に指定。
+                String sql = "SELECT * FROM students WHERE name LIKE ? ORDER BY " + orderByClause;
                 
                 try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                     pstmt.setString(1, "%" + query + "%");
