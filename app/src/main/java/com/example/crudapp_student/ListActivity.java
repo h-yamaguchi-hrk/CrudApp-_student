@@ -88,12 +88,8 @@ public class ListActivity extends AppCompatActivity {
     private void refreshList(String query, int grade, String sortBy) {
         setButtonsEnabled(false);
         DatabaseHelper.getStudentsFiltered(query, grade, sortBy, students -> {
+            // UIスレッドで実行するが、Activityの状態を確認しないバグ
             runOnUiThread(() -> {
-                if (students == null) {
-                    Toast.makeText(ListActivity.this, "DB接続失敗", Toast.LENGTH_LONG).show();
-                    setButtonsEnabled(true);
-                    return;
-                }
                 final List<String> displayList = new ArrayList<>();
                 for (Student s : students) {
                     displayList.add("ID: " + s.getId() + ", 名前: " + s.getName() + ", 学年: " + s.getGrade());

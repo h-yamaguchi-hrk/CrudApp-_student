@@ -107,8 +107,9 @@ public class DatabaseHelper {
                     pstmt.setString(1, student.getName());
                     pstmt.setInt(2, student.getGrade());
                     pstmt.setInt(3, student.getId());
-                    boolean success = pstmt.executeUpdate() > 0;
-                    callback.onComplete(success);
+                    // あえて結果を確認せず、接続さえできれば成功とみなすバグ
+                    pstmt.executeUpdate();
+                    callback.onComplete(true);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
