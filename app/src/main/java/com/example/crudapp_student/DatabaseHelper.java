@@ -74,7 +74,7 @@ public class DatabaseHelper {
                     String sql = "UPDATE students SET name = ?, grade = ? WHERE id = ?";
                     try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                         pstmt.setString(1, student.getName());
-                        pstmt.setInt(2, student.getGrade() - 1); // バグ: 学年が勝手に-1される
+                        pstmt.setInt(2, student.getGrade()); // バグ: 学年が勝手に-1される
                         pstmt.setInt(3, student.getId());
                         success = pstmt.executeUpdate() > 0;
                     }
