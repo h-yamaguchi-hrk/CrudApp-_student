@@ -23,7 +23,15 @@ public class UpdateActivity extends AppCompatActivity {
             String gradeStr = etGrade.getText().toString();
 
             if (!idStr.isEmpty() && !name.isEmpty() && !gradeStr.isEmpty()) {
-                Student student = new Student(Integer.parseInt(idStr), name, Integer.parseInt(gradeStr));
+                int grade = Integer.parseInt(gradeStr);
+
+                // 学年のバリデーション (1〜3のみ許可)
+                if (grade < 1 || grade > 3) {
+                    Toast.makeText(this, "学年は1〜3の間で入力してください", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                Student student = new Student(Integer.parseInt(idStr), name, grade);
                 DatabaseHelper.updateStudent(student, result -> {
                     runOnUiThread(() -> {
                         if (result == null) {

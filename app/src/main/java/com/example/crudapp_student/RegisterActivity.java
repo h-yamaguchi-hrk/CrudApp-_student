@@ -23,7 +23,16 @@ public class RegisterActivity extends AppCompatActivity {
 
             // 名前と学年の両方が入力されているかチェック
             if (!name.isEmpty() && !gradeStr.isEmpty()) {
-                Student student = new Student(name, Integer.parseInt(gradeStr));
+                int grade = Integer.parseInt(gradeStr);
+                
+                // 学年のバリデーション (1〜3のみ許可)
+                if (grade < 1 || grade > 3) {
+                    Toast.makeText(this, "学年は1〜3の間で入力してください", Toast.LENGTH_SHORT).show();
+                    btnSubmit.setEnabled(true);
+                    return;
+                }
+
+                Student student = new Student(name, grade);
                 DatabaseHelper.insertStudent(student, result -> {
                     runOnUiThread(() -> {
                         if (result == null) {
