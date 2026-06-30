@@ -21,7 +21,7 @@ public class RegisterActivity extends AppCompatActivity {
             String gradeStr = etGrade.getText().toString();
 
             // バグ: 名前が空でも登録に進んでしまう（gradeStrのみチェック）
-            if (!gradeStr.isEmpty()) {
+            if (!name.isEmpty() &&!gradeStr.isEmpty()) {
                 Student student = new Student(name, Integer.parseInt(gradeStr));
                 DatabaseHelper.insertStudent(student, success -> {
                     runOnUiThread(() -> {
