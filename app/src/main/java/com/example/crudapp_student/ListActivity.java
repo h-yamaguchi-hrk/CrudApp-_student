@@ -16,7 +16,7 @@ import java.util.List;
 
 public class ListActivity extends AppCompatActivity {
     private String currentSort = "id";
-    private int currentGradeFilter = 0; // 0: すべて
+    private int currentGradeFilter = 0;
     private Button btnSearch, btnSortId, btnSortName, btnDeleteAll;
     private EditText etSearch;
     private ListView listView;
@@ -34,7 +34,6 @@ public class ListActivity extends AppCompatActivity {
         btnDeleteAll = findViewById(R.id.btnDeleteAll);
         Spinner spinnerGrade = findViewById(R.id.spinnerGrade);
 
-        // Spinnerの設定
         String[] grades = {"すべて", "1年生", "2年生", "3年生"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, grades);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -43,9 +42,7 @@ public class ListActivity extends AppCompatActivity {
         spinnerGrade.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                // バグ仕込み4：ポジションの判定ミス（1年生を選んでも「すべて」になるなど、ズレている）
-                currentGradeFilter = position - 1; 
-                if (currentGradeFilter < 0) currentGradeFilter = 0;
+                currentGradeFilter = position;
                 refreshList(etSearch.getText().toString(), currentGradeFilter, currentSort);
             }
             @Override
@@ -70,13 +67,11 @@ public class ListActivity extends AppCompatActivity {
                         runOnUiThread(() -> {
                             if (result != null && result) {
                                 Toast.makeText(ListActivity.this, "全削除しました", Toast.LENGTH_SHORT).show();
-                                // バグ仕込み5：削除後に一覧をリフレッシュし忘れている（画面上のリストが消えない）
                             }
                         });
                     });
                 })
                 .setNegativeButton("キャンセル", (dialog, which) -> {
-                    // バグ仕込み6：キャンセルボタンなのに削除処理を呼んでしまっている
                     DatabaseHelper.deleteAllStudents(result -> {});
                 })
                 .show();

@@ -70,10 +70,9 @@ public class DatabaseHelper {
                 }
 
                 List<Student> list = new ArrayList<>();
-                // バグ仕込み3：学年フィルターの条件が >= になっている（「2年生」を選んでも3年生まで出る）
                 StringBuilder sql = new StringBuilder("SELECT * FROM students WHERE name LIKE ? ");
                 if (gradeFilter > 0) {
-                    sql.append("AND grade >= ? ");
+                    sql.append("AND grade = ? ");
                 }
                 sql.append("ORDER BY ").append(orderByClause);
 
