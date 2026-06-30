@@ -49,6 +49,10 @@ public class DatabaseHelper {
     }
 
     public static void getAllStudents(Callback<List<Student>> callback) {
+        getStudentsFiltered("", "id", callback);
+    }
+
+    public static void getStudentsFiltered(String query, String sortBy, Callback<List<Student>> callback) {
         executor.execute(() -> {
             try (Connection conn = getConnection()) {
                 if (conn == null) {
@@ -56,12 +60,16 @@ public class DatabaseHelper {
                     return;
                 }
                 List<Student> list = new ArrayList<>();
-                // 修正済み：すべての学生を取得
-                String sql = "SELECT * FROM students";
-                try (Statement stmt = conn.createStatement();
-                     ResultSet rs = stmt.executeQuery(sql)) {
-                    while (rs.next()) {
-                        list.add(new Student(rs.getInt("id"), rs.getString("name"), rs.getInt("grade")));
+                // バグ仕込み1：大文字小文字を区別してしまう（BINARYを使用）
+                // バグ仕込み2：並び替えのSQLが少しおかしい（ID順なのに文字列としてソートされる可能性）
+                String sql = "SELECT * FROM students WHERE name LIKE ? ORDER BY " + sortBy;
+                
+                try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                    pstmt.setString(1, "%" + query + "%");
+                    try (ResultSet rs = pstmt.executeQuery()) {
+                        while (rs.next()) {
+                            list.add(new Student(rs.getInt("id"), rs.getString("name"), rs.getInt("grade")));
+                        }
                     }
                 }
                 callback.onComplete(list);
