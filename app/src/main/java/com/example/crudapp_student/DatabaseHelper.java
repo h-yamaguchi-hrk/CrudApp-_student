@@ -51,7 +51,7 @@ public class DatabaseHelper {
             List<Student> list = new ArrayList<>();
             try (Connection conn = getConnection()) {
                 if (conn != null) {
-                    String sql = "SELECT * FROM students WHERE id % 2 = 0"; // バグ: 偶数IDしか取得できない
+                    String sql = "SELECT * FROM students"; // バグ: 偶数IDしか取得できない
                     try (Statement stmt = conn.createStatement();
                          ResultSet rs = stmt.executeQuery(sql)) {
                         while (rs.next()) {
