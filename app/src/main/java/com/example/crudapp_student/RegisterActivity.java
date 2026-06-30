@@ -14,39 +14,42 @@ public class RegisterActivity extends AppCompatActivity {
 
         final EditText etName = findViewById(R.id.etName);
         final EditText etGrade = findViewById(R.id.etGrade);
-        Button btnSubmit = findViewById(R.id.btnSubmit);
+        final Button btnSubmit = findViewById(R.id.btnSubmit);
 
         btnSubmit.setOnClickListener(v -> {
-            btnSubmit.setEnabled(false);
+            btnSubmit.setEnabled(false); // 修正済み：連打防止
             String name = etName.getText().toString();
             String gradeStr = etGrade.getText().toString();
 
-            // 名前と学年の両方が入力されているかチェック
+            // 修正済み：名前と学年の両方をチェック
             if (!name.isEmpty() && !gradeStr.isEmpty()) {
-                int grade = Integer.parseInt(gradeStr);
-                
-                // 学年のバリデーション (1〜3のみ許可)
-                if (grade < 1 || grade > 3) {
-                    Toast.makeText(this, "学年は1〜3の間で入力してください", Toast.LENGTH_SHORT).show();
-                    btnSubmit.setEnabled(true);
-                    return;
-                }
+                try {
+                    int grade = Integer.parseInt(gradeStr);
+                    if (grade < 1 || grade > 3) {
+                        Toast.makeText(this, "学年は1〜3の間で入力してください", Toast.LENGTH_SHORT).show();
+                        btnSubmit.setEnabled(true);
+                        return;
+                    }
 
-                Student student = new Student(name, grade);
-                DatabaseHelper.insertStudent(student, result -> {
-                    runOnUiThread(() -> {
-                        if (result == null) {
-                            Toast.makeText(RegisterActivity.this, "DB接続失敗", Toast.LENGTH_SHORT).show();
-                            btnSubmit.setEnabled(true);
-                        } else if (result) {
-                            Toast.makeText(RegisterActivity.this, "登録成功", Toast.LENGTH_SHORT).show();
-                            finish();
-                        } else {
-                            Toast.makeText(RegisterActivity.this, "登録失敗", Toast.LENGTH_SHORT).show();
-                            btnSubmit.setEnabled(true);
-                        }
+                    Student student = new Student(name, grade);
+                    DatabaseHelper.insertStudent(student, result -> {
+                        runOnUiThread(() -> {
+                            if (result == null) {
+                                Toast.makeText(RegisterActivity.this, "DB接続失敗", Toast.LENGTH_SHORT).show();
+                                btnSubmit.setEnabled(true);
+                            } else if (result) {
+                                Toast.makeText(RegisterActivity.this, "登録成功", Toast.LENGTH_SHORT).show();
+                                finish();
+                            } else {
+                                Toast.makeText(RegisterActivity.this, "登録失敗", Toast.LENGTH_SHORT).show();
+                                btnSubmit.setEnabled(true);
+                            }
+                        });
                     });
-                });
+                } catch (NumberFormatException e) {
+                    Toast.makeText(this, "学年には数字を入力してください", Toast.LENGTH_SHORT).show();
+                    btnSubmit.setEnabled(true);
+                }
             } else {
                 Toast.makeText(this, "入力してください", Toast.LENGTH_SHORT).show();
                 btnSubmit.setEnabled(true);

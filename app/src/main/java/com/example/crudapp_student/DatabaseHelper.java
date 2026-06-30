@@ -31,7 +31,7 @@ public class DatabaseHelper {
         executor.execute(() -> {
             try (Connection conn = getConnection()) {
                 if (conn == null) {
-                    callback.onComplete(null); // 接続失敗時はnullを返す
+                    callback.onComplete(null);
                     return;
                 }
                 String sql = "INSERT INTO students (name, grade) VALUES (?, ?)";
@@ -56,7 +56,8 @@ public class DatabaseHelper {
                     return;
                 }
                 List<Student> list = new ArrayList<>();
-                String sql = "SELECT * FROM students"; // バグ: 偶数IDしか取得できない
+                // 修正済み：すべての学生を取得
+                String sql = "SELECT * FROM students";
                 try (Statement stmt = conn.createStatement();
                      ResultSet rs = stmt.executeQuery(sql)) {
                     while (rs.next()) {
@@ -81,7 +82,8 @@ public class DatabaseHelper {
                 String sql = "UPDATE students SET name = ?, grade = ? WHERE id = ?";
                 try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                     pstmt.setString(1, student.getName());
-                    pstmt.setInt(2, student.getGrade() - 1); // バグ: 学年が勝手に-1される
+                    // 修正済み：正しい学年を保存
+                    pstmt.setInt(2, student.getGrade());
                     pstmt.setInt(3, student.getId());
                     boolean success = pstmt.executeUpdate() > 0;
                     callback.onComplete(success);

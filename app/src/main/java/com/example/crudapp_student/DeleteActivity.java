@@ -13,26 +13,36 @@ public class DeleteActivity extends AppCompatActivity {
         setContentView(R.layout.activity_delete);
 
         final EditText etId = findViewById(R.id.etDeleteId);
-        Button btnSubmit = findViewById(R.id.btnDeleteSubmit);
+        final Button btnSubmit = findViewById(R.id.btnDeleteSubmit);
 
         btnSubmit.setOnClickListener(v -> {
+            btnSubmit.setEnabled(false); // 連打防止
             String idStr = etId.getText().toString();
 
             if (!idStr.isEmpty()) {
-                DatabaseHelper.deleteStudent(Integer.parseInt(idStr), result -> {
-                    runOnUiThread(() -> {
-                        if (result == null) {
-                            Toast.makeText(DeleteActivity.this, "DB接続失敗", Toast.LENGTH_SHORT).show();
-                        } else if (result) {
-                            Toast.makeText(DeleteActivity.this, "削除成功", Toast.LENGTH_SHORT).show();
-                            finish();
-                        } else {
-                            Toast.makeText(DeleteActivity.this, "削除失敗", Toast.LENGTH_SHORT).show();
-                        }
+                try {
+                    int id = Integer.parseInt(idStr);
+                    DatabaseHelper.deleteStudent(id, result -> {
+                        runOnUiThread(() -> {
+                            if (result == null) {
+                                Toast.makeText(DeleteActivity.this, "DB接続失敗", Toast.LENGTH_SHORT).show();
+                                btnSubmit.setEnabled(true);
+                            } else if (result) {
+                                Toast.makeText(DeleteActivity.this, "削除成功", Toast.LENGTH_SHORT).show();
+                                finish();
+                            } else {
+                                Toast.makeText(DeleteActivity.this, "削除失敗", Toast.LENGTH_SHORT).show();
+                                btnSubmit.setEnabled(true);
+                            }
+                        });
                     });
-                });
+                } catch (NumberFormatException e) {
+                    Toast.makeText(this, "IDには数字を入力してください", Toast.LENGTH_SHORT).show();
+                    btnSubmit.setEnabled(true);
+                }
             } else {
                 Toast.makeText(this, "IDを入力してください", Toast.LENGTH_SHORT).show();
+                btnSubmit.setEnabled(true);
             }
         });
 

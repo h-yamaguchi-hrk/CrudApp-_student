@@ -15,37 +15,47 @@ public class UpdateActivity extends AppCompatActivity {
         final EditText etId = findViewById(R.id.etUpdateId);
         final EditText etName = findViewById(R.id.etUpdateName);
         final EditText etGrade = findViewById(R.id.etUpdateGrade);
-        Button btnSubmit = findViewById(R.id.btnUpdateSubmit);
+        final Button btnSubmit = findViewById(R.id.btnUpdateSubmit);
 
         btnSubmit.setOnClickListener(v -> {
+            btnSubmit.setEnabled(false); // 連打防止
             String idStr = etId.getText().toString();
             String name = etName.getText().toString();
             String gradeStr = etGrade.getText().toString();
 
             if (!idStr.isEmpty() && !name.isEmpty() && !gradeStr.isEmpty()) {
-                int grade = Integer.parseInt(gradeStr);
+                try {
+                    int id = Integer.parseInt(idStr);
+                    int grade = Integer.parseInt(gradeStr);
 
-                // 学年のバリデーション (1〜3のみ許可)
-                if (grade < 1 || grade > 3) {
-                    Toast.makeText(this, "学年は1〜3の間で入力してください", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+                    if (grade < 1 || grade > 3) {
+                        Toast.makeText(this, "学年は1〜3の間で入力してください", Toast.LENGTH_SHORT).show();
+                        btnSubmit.setEnabled(true);
+                        return;
+                    }
 
-                Student student = new Student(Integer.parseInt(idStr), name, grade);
-                DatabaseHelper.updateStudent(student, result -> {
-                    runOnUiThread(() -> {
-                        if (result == null) {
-                            Toast.makeText(UpdateActivity.this, "DB接続失敗", Toast.LENGTH_SHORT).show();
-                        } else if (result) {
-                            Toast.makeText(UpdateActivity.this, "更新成功", Toast.LENGTH_SHORT).show();
-                            finish();
-                        } else {
-                            Toast.makeText(UpdateActivity.this, "更新失敗", Toast.LENGTH_SHORT).show();
-                        }
+                    Student student = new Student(id, name, grade);
+                    DatabaseHelper.updateStudent(student, result -> {
+                        runOnUiThread(() -> {
+                            if (result == null) {
+                                Toast.makeText(UpdateActivity.this, "DB接続失敗", Toast.LENGTH_SHORT).show();
+                                btnSubmit.setEnabled(true);
+                            } else if (result) {
+                                Toast.makeText(UpdateActivity.this, "更新成功", Toast.LENGTH_SHORT).show();
+                                finish();
+                            } else {
+                                Toast.makeText(UpdateActivity.this, "更新失敗", Toast.LENGTH_SHORT).show();
+                                btnSubmit.setEnabled(true);
+                            }
+                        });
                     });
-                });
+                } catch (NumberFormatException e) {
+                    Toast.makeText(this, "数字を入力してください", Toast.LENGTH_SHORT).show();
+                    btnSubmit.setEnabled(true);
+                }
             } else {
                 Toast.makeText(this, "入力してください", Toast.LENGTH_SHORT).show();
+                btnSubmit.setEnabled(true);
             }
         });
 

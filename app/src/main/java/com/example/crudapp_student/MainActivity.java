@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnUpdate).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // 修正済み：UpdateActivityへ遷移
                 startActivity(new Intent(MainActivity.this, UpdateActivity.class));
             }
         });
