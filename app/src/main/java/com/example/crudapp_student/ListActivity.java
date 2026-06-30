@@ -67,12 +67,13 @@ public class ListActivity extends AppCompatActivity {
                         runOnUiThread(() -> {
                             if (result != null && result) {
                                 Toast.makeText(ListActivity.this, "全削除しました", Toast.LENGTH_SHORT).show();
+                                refreshList(etSearch.getText().toString(), currentGradeFilter, currentSort);
                             }
                         });
                     });
                 })
                 .setNegativeButton("キャンセル", (dialog, which) -> {
-                    DatabaseHelper.deleteAllStudents(result -> {});
+                    
                 })
                 .show();
     }
