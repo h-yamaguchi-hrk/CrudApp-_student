@@ -17,11 +17,12 @@ public class RegisterActivity extends AppCompatActivity {
         Button btnSubmit = findViewById(R.id.btnSubmit);
 
         btnSubmit.setOnClickListener(v -> {
+            btnSubmit.setEnabled(false);
             String name = etName.getText().toString();
             String gradeStr = etGrade.getText().toString();
 
-            // バグ: 名前が空でも登録に進んでしまう（gradeStrのみチェック）
-            if (!name.isEmpty() &&!gradeStr.isEmpty()) {
+            // 名前と学年の両方が入力されているかチェック
+            if (!name.isEmpty() && !gradeStr.isEmpty()) {
                 Student student = new Student(name, Integer.parseInt(gradeStr));
                 DatabaseHelper.insertStudent(student, success -> {
                     runOnUiThread(() -> {
@@ -30,11 +31,13 @@ public class RegisterActivity extends AppCompatActivity {
                             finish();
                         } else {
                             Toast.makeText(RegisterActivity.this, "登録失敗", Toast.LENGTH_SHORT).show();
+                            btnSubmit.setEnabled(true);
                         }
                     });
                 });
             } else {
                 Toast.makeText(this, "入力してください", Toast.LENGTH_SHORT).show();
+                btnSubmit.setEnabled(true);
             }
         });
 
