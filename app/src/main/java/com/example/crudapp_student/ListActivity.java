@@ -120,6 +120,9 @@ public class ListActivity extends AppCompatActivity {
         setButtonsEnabled(false);
         DatabaseHelper.getStudentsFiltered(query, grade, sortBy, students -> {
             runOnUiThread(() -> {
+                // 修正：画面がすでに閉じられている場合は処理を中断する（クラッシュ防止）
+                if (isFinishing() || isDestroyed()) return;
+
                 if (students == null) {
                     Toast.makeText(ListActivity.this, "DB接続失敗", Toast.LENGTH_LONG).show();
                     setButtonsEnabled(true);
