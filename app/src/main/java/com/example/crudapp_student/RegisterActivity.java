@@ -19,6 +19,7 @@ public class RegisterActivity extends AppCompatActivity {
         btnSubmit.setOnClickListener(v -> {
             btnSubmit.setEnabled(false); // 修正済み：連打防止
             String name = etName.getText().toString();
+            name = name.trim();
             String gradeStr = etGrade.getText().toString();
 
             // 修正済み：名前と学年の両方をチェック
